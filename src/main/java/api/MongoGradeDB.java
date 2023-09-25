@@ -187,9 +187,6 @@ public class MongoGradeDB implements GradeDB {
     }
 
     @Override
-    // TODO: Implement this method
-    //       Hint: Read apiDocuments/getMyTeam.md and refer to the above
-    //             methods to help you write this code (copy-and-paste + edit as needed).
     public Team getMyTeam() {
         OkHttpClient client = new OkHttpClient().newBuilder()
                 .build();
@@ -210,7 +207,17 @@ public class MongoGradeDB implements GradeDB {
             JSONObject responseBody = new JSONObject(response.body().string());
 
             if (responseBody.getInt("status_code") == 200) {
-                return null;
+                JSONObject team = responseBody.getJSONObject("team");
+                JSONArray membersArray = team.getJSONArray("members");
+                String[] members = new String[membersArray.length()];
+                for (int i = 0; i < membersArray.length(); i++) {
+                    members[i] = membersArray.getString(i);
+                }
+
+                return Team.builder()
+                        .name(team.getString("name"))
+                        .members(members)
+                        .build();
             } else {
                 throw new RuntimeException(responseBody.getString("message"));
             }
